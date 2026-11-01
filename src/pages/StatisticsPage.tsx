@@ -143,3 +143,4 @@ export const StatisticsPage: React.FC = () => {
     </div>
   );
 };
+

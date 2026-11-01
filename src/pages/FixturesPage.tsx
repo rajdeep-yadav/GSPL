@@ -206,3 +206,4 @@ export const FixturesPage: React.FC = () => {
     </div>
   );
 };
+

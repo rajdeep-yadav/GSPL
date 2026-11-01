@@ -196,3 +196,4 @@ export const RegistrationStatusPage: React.FC = () => {
     </div>
   );
 };
+

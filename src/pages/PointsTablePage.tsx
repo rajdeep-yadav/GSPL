@@ -159,3 +159,4 @@ export const PointsTablePage: React.FC = () => {
     </div>
   );
 };
+

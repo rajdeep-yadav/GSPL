@@ -163,3 +163,4 @@ export interface TournamentSettings {
   excel_sync_enabled: boolean;
   excel_file_id?: string;
 }
+

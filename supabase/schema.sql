@@ -194,3 +194,4 @@ CREATE POLICY "Public deliveries read" ON match_deliveries FOR SELECT USING (tru
 ALTER PUBLICATION supabase_realtime ADD TABLE matches;
 ALTER PUBLICATION supabase_realtime ADD TABLE match_deliveries;
 ALTER PUBLICATION supabase_realtime ADD TABLE registrations;
+

@@ -112,3 +112,4 @@ export async function syncRegistrationsToExcel(registrations: PlayerRegistration
     provider: 'local_virtual_workbook'
   };
 }
+
