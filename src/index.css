@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #090909;
+    --bg-secondary: #121212;
+    --bg-card: #191919;
+    --color-orange: #FF5722;
+    --color-phoenix: #FF7938;
+    --color-red: #E53935;
+    --color-highlight: #FFAA45;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A1A1AA;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom scrollbars & utilities */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF5722;
+}
+
+.text-gradient-fire {
+  background: linear-gradient(135deg, #FF7938 0%, #FF5722 50%, #FFAA45 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-radial-glow {
+  background: radial-gradient(circle at 50% 0%, rgba(255, 87, 34, 0.15) 0%, rgba(9, 9, 9, 0) 70%);
+}
