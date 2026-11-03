@@ -12,15 +12,18 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-1 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md">
-                <img src="/gspl-logo.jpg" alt="GSPL 2026 Logo" className="w-full h-full object-cover" />
+                <img src="/gspl-logo.jpg" alt="GSPL Season 2 Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-black text-xl tracking-wider text-[var(--text-main)]">GSPL 2026</span>
+              <div>
+                <span className="font-black text-xl tracking-wider text-[var(--text-main)] block">GSPL 2026</span>
+                <span className="text-[10px] font-bold text-[var(--brand-gold)] uppercase tracking-widest">Season 2</span>
+              </div>
             </div>
             <p className="text-xs uppercase tracking-widest text-[var(--brand-orange)] font-bold">
               ONE SOCIETY. ONE LEAGUE. ONE CHAMPION.
             </p>
             <p className="text-sm leading-relaxed">
-              Official box cricket championship portal for Gokul Shrishti society. Promoting athletic excellence, community bonding, and competitive spirit.
+              Official box cricket tournament portal for Gokul Shrishti society across Wings A, B, C, D, and E.
             </p>
           </div>
 
@@ -34,21 +37,20 @@ export const Footer: React.FC = () => {
               <li><Link to="/teams" className="hover:text-[var(--brand-orange)] transition">Teams & Squads</Link></li>
               <li><Link to="/points-table" className="hover:text-[var(--brand-orange)] transition">Points Table</Link></li>
               <li><Link to="/statistics" className="hover:text-[var(--brand-orange)] transition">Orange & Purple Cap</Link></li>
-              <li><Link to="/awards" className="hover:text-[var(--brand-orange)] transition">Tournament Honors</Link></li>
+              <li><a href="/#gallery" className="hover:text-[var(--brand-orange)] transition">Tournament Gallery</a></li>
             </ul>
           </div>
 
           {/* Col 3: Players & Rules */}
           <div>
             <h4 className="text-[var(--text-main)] text-sm font-semibold uppercase tracking-wider mb-4 border-l-2 border-[var(--brand-orange)] pl-2">
-              Registration & Rules
+              Registration & Wings
             </h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/register" className="hover:text-[var(--brand-orange)] transition">Player Online Registration</Link></li>
+              <li><Link to="/register" className="hover:text-[var(--brand-orange)] transition">Player Registration</Link></li>
               <li><Link to="/registration-status" className="hover:text-[var(--brand-orange)] transition">Check Registration Status</Link></li>
-              <li><Link to="/about" className="hover:text-[var(--brand-orange)] transition">Box Cricket Rules & Bylaws</Link></li>
-              <li><Link to="/news" className="hover:text-[var(--brand-orange)] transition">Committee Announcements</Link></li>
-              <li><Link to="/gallery" className="hover:text-[var(--brand-orange)] transition">Event Photo Gallery</Link></li>
+              <li><a href="/#about" className="hover:text-[var(--brand-orange)] transition">How We Started (Story)</a></li>
+              <li><span className="text-[var(--text-subtle)]">Wings A, B, C, D, E</span></li>
             </ul>
           </div>
 
@@ -60,19 +62,21 @@ export const Footer: React.FC = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[var(--brand-orange)] shrink-0 mt-0.5" />
-                <span>Gokul Shrishti Central Turf Arena, Wings A/B/C Common Quadrangle</span>
+                <span>GOKUL SHRISTI WINGS A, B, C, D, E garden</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[var(--brand-orange)] shrink-0" />
-                <span>gspl.committee@society.internal</span>
+                <a href="mailto:gokulshristipremierleague@gmail.com" className="hover:underline text-xs">
+                  gokulshristipremierleague@gmail.com
+                </a>
               </div>
               <div className="pt-2">
                 <Link
                   to="/admin"
                   className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-elevated)] hover:border-[var(--brand-orange)] text-[var(--text-main)] transition"
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-[var(--brand-orange)]" />
-                  <span>Committee Admin Portal</span>
+                  <ShieldCheck className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                  <span>Single Admin Dashboard</span>
                 </Link>
               </div>
             </div>
@@ -82,7 +86,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom bar */}
         <div className="border-t border-[var(--border-color)] pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--text-muted)] gap-4">
-          <p>© 2026 Gokul Shrishti Premier League. All society rights reserved.</p>
+          <p>© 2026 Gokul Shrishti Premier League (GSPL Season 2). All society rights reserved.</p>
           <div className="flex items-center gap-1">
             <span>Organized with</span>
             <Heart className="w-3.5 h-3.5 text-[var(--brand-red)] fill-current" />

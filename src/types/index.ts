@@ -1,6 +1,6 @@
 export type CricketFrequency = 'Regularly' | 'Occasionally' | 'Rarely / First time';
 export type TShirtSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
-export type BuildingWing = 'A' | 'B' | 'C' | 'Other';
+export type BuildingWing = 'A' | 'B' | 'C' | 'D' | 'E';
 export type PlayerCategory = 'A' | 'B' | 'C' | 'Unassigned';
 export type RegistrationStatus = 'Pending' | 'Approved' | 'Rejected';
 

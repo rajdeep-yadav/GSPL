@@ -1,40 +1,54 @@
 import React from 'react';
 
 export const FireAtmosphereBackground: React.FC = () => {
+  // Spark particles with random rising positions and delays
+  const sparks = [
+    { left: '8%', delay: '0s', duration: '9s', size: 3, color: '#F5C042' },
+    { left: '18%', delay: '2.5s', duration: '12s', size: 4, color: '#FF5A1F' },
+    { left: '27%', delay: '1.2s', duration: '10s', size: 2.5, color: '#FFE272' },
+    { left: '38%', delay: '4s', duration: '14s', size: 3.5, color: '#E02424' },
+    { left: '49%', delay: '0.5s', duration: '8.5s', size: 2, color: '#F5C042' },
+    { left: '59%', delay: '3.2s', duration: '11s', size: 4, color: '#FF5A1F' },
+    { left: '68%', delay: '1.8s', duration: '13s', size: 2.5, color: '#FFE272' },
+    { left: '79%', delay: '4.8s', duration: '9.5s', size: 3, color: '#FF5A1F' },
+    { left: '88%', delay: '2s', duration: '12.5s', size: 3.5, color: '#F5C042' },
+    { left: '94%', delay: '3.7s', duration: '10.5s', size: 2, color: '#E02424' },
+  ];
+
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* Dynamic Warm Ambient Radial Gradients */}
+      {/* Dark mode soft ambient glowing backdrops (Only visible in dark mode to preserve 100% light mode contrast) */}
       <div 
-        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[900px] h-[650px] rounded-full blur-[160px] opacity-25 dark:opacity-40 animate-fire-breath"
+        className="hidden dark:block absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[550px] rounded-full blur-[160px] opacity-25"
         style={{
-          background: 'radial-gradient(circle, #F5C042 0%, #FF5A1F 45%, #E02424 80%, transparent 100%)'
+          background: 'radial-gradient(circle, #F5C042 0%, #FF5A1F 50%, #E02424 90%, transparent 100%)'
         }}
       />
       <div 
-        className="absolute top-1/2 -left-40 w-[600px] h-[600px] rounded-full blur-[180px] opacity-20 dark:opacity-30"
+        className="hidden dark:block absolute top-1/2 -left-40 w-[550px] h-[550px] rounded-full blur-[180px] opacity-20"
         style={{
-          background: 'radial-gradient(circle, #FF5A1F 0%, #E02424 60%, transparent 100%)'
-        }}
-      />
-      <div 
-        className="absolute bottom-10 -right-40 w-[650px] h-[650px] rounded-full blur-[190px] opacity-15 dark:opacity-25"
-        style={{
-          background: 'radial-gradient(circle, #F5C042 0%, #FF8A00 50%, transparent 100%)'
+          background: 'radial-gradient(circle, #FF5A1F 0%, #E02424 70%, transparent 100%)'
         }}
       />
 
-      {/* Floating Spark Embers Layer */}
-      <svg className="w-full h-full opacity-40 dark:opacity-70" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12%" cy="18%" r="2" fill="#F5C042" className="animate-pulse" style={{ animationDuration: '4s' }} />
-        <circle cx="28%" cy="72%" r="2.5" fill="#FF5A1F" className="animate-pulse" style={{ animationDuration: '6s', animationDelay: '1s' }} />
-        <circle cx="48%" cy="28%" r="1.5" fill="#FFE272" className="animate-pulse" style={{ animationDuration: '5s', animationDelay: '2s' }} />
-        <circle cx="68%" cy="65%" r="3" fill="#E02424" className="animate-pulse" style={{ animationDuration: '7s', animationDelay: '1.5s' }} />
-        <circle cx="82%" cy="22%" r="2" fill="#F5C042" className="animate-pulse" style={{ animationDuration: '5.5s' }} />
-        <circle cx="90%" cy="82%" r="2.5" fill="#FF5A1F" className="animate-pulse" style={{ animationDuration: '6.5s', animationDelay: '0.5s' }} />
-        <circle cx="38%" cy="90%" r="1.8" fill="#F5C042" className="animate-pulse" style={{ animationDuration: '8s' }} />
-        <circle cx="58%" cy="12%" r="2" fill="#FFE272" className="animate-pulse" style={{ animationDuration: '4.5s', animationDelay: '3s' }} />
-        <circle cx="75%" cy="48%" r="1.5" fill="#FF5A1F" className="animate-pulse" style={{ animationDuration: '7s' }} />
-      </svg>
+      {/* Upward Rising Live Sparks (Active in Dark Mode) */}
+      <div className="hidden dark:block absolute inset-0">
+        {sparks.map((spark, idx) => (
+          <div
+            key={idx}
+            className="absolute bottom-0 rounded-full animate-spark-rise pointer-events-none"
+            style={{
+              left: spark.left,
+              width: `${spark.size}px`,
+              height: `${spark.size}px`,
+              backgroundColor: spark.color,
+              boxShadow: `0 0 ${spark.size * 3}px ${spark.color}`,
+              animationDelay: spark.delay,
+              animationDuration: spark.duration,
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 };

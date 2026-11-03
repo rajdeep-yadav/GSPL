@@ -254,7 +254,7 @@ export const INITIAL_REGISTRATIONS: PlayerRegistration[] = [
     full_name: 'Suresh Bhat',
     age: 42,
     cricket_frequency: 'Rarely / First time',
-    wing: 'Other',
+    wing: 'D',
     flat_number: 'Row House 4',
     tshirt_size: 'XXL',
     captaincy_interest: false,

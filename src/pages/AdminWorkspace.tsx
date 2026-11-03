@@ -116,35 +116,33 @@ export const AdminWorkspace: React.FC = () => {
   const netBalance = totalIncome - totalExpense;
 
   return (
-    <div className="min-h-screen bg-[#090909] text-white flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col md:flex-row transition-colors">
       
       {/* 1. PERSISTENT UNIFIED SIDEBAR */}
-      <aside className="w-full md:w-64 bg-[#121212] border-r border-[#27272a] shrink-0 p-4 space-y-6 flex flex-col justify-between">
+      <aside className="w-full md:w-64 bg-[var(--bg-secondary)] border-r border-[var(--border-color)] shrink-0 p-4 space-y-6 flex flex-col justify-between">
         <div className="space-y-6">
           
-          {/* Workspace Brand */}
+          {/* Workspace Brand with GSPL Logo */}
           <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF5722] to-[#E53935] flex items-center justify-center font-black text-white shadow-lg">
-              GS
+            <div className="w-10 h-10 rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md shrink-0">
+              <img src="/gspl-logo.jpg" alt="GSPL Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <span className="font-black text-sm tracking-wide text-white block">GSPL WORKSPACE</span>
-              <span className="text-[10px] text-[#A1A1AA] uppercase font-bold tracking-wider">
-                Admin Shell v2.4
+              <span className="font-extrabold text-sm tracking-wide text-[var(--text-main)] block">GSPL ADMIN</span>
+              <span className="text-[10px] text-[var(--brand-gold)] uppercase font-bold tracking-wider">
+                Season 2 • Unified Console
               </span>
             </div>
           </div>
 
-          {/* Current Admin Role Badge */}
-          <div className="bg-[#191919] p-3 rounded-xl border border-[#27272a] space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-[#A1A1AA] uppercase font-bold">
-              <span>Active Admin</span>
-              <span className="text-emerald-400">Online</span>
+          {/* Unified Committee Admin Account Badge */}
+          <div className="bg-[var(--bg-elevated)] p-3 rounded-xl border border-[var(--border-subtle)] space-y-1">
+            <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase font-bold">
+              <span>Admin Profile</span>
+              <span className="text-emerald-500 font-bold">Authorized</span>
             </div>
-            <p className="text-xs font-bold text-white truncate">{currentAdmin?.name || 'Super Admin'}</p>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-[#FF5722]/20 text-[#FF7938] font-bold inline-block">
-              {currentAdmin?.role || 'Super Admin'}
-            </span>
+            <p className="text-xs font-bold text-[var(--text-main)] truncate">GSPL Committee Admin</p>
+            <p className="text-[10px] text-[var(--text-muted)] truncate">gokulshristipremierleague@gmail.com</p>
           </div>
 
           {/* Navigation Items */}
@@ -172,8 +170,8 @@ export const AdminWorkspace: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                     isActive
-                      ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/30'
-                      : 'text-[#A1A1AA] hover:bg-[#191919] hover:text-white'
+                      ? 'bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-red)] text-white shadow-md'
+                      : 'text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-main)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">

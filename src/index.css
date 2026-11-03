@@ -3,17 +3,17 @@
 @layer base {
   /* ==========================================================================
      GSPL LUXURY THEME TOKENS
-     Inspired by the official Gold / Fiery Orange / Phoenix Red / Obsidian Shield
+     Obsidian Black, Deep Championship Gold, Fiery Orange & Phoenix Red
      ========================================================================== */
 
   /* Dark Mode: Luxury Obsidian & Deep Championship Gold */
   :root {
     --bg-main: #060709;
-    --bg-secondary: #0D0F14;
-    --bg-card: #12151C;
-    --bg-elevated: #1A1E27;
-    --border-color: #242A36;
-    --border-subtle: #1C212B;
+    --bg-secondary: #0c0e13;
+    --bg-card: #12151b;
+    --bg-elevated: #181d26;
+    --border-color: #232936;
+    --border-subtle: #191f2b;
     
     --text-main: #F8F9FA;
     --text-muted: #9BA3AF;
@@ -25,31 +25,31 @@
     --brand-red: #E02424;
     --brand-blue: #1C64F2;
     
-    --glass-nav: rgba(6, 7, 9, 0.82);
-    --glass-card: rgba(18, 21, 28, 0.72);
+    --glass-nav: rgba(6, 7, 9, 0.88);
+    --glass-card: rgba(18, 21, 27, 0.85);
   }
 
-  /* Light Mode: Crisp Architectural Editorial Canvas */
+  /* Light Mode: Clean, Crisp, High-Contrast Editorial Canvas */
   :root.light {
-    --bg-main: #F7F6F3;
+    --bg-main: #FBFBFA;
     --bg-secondary: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-elevated: #EFECE6;
-    --border-color: #E2DDD5;
-    --border-subtle: #ECE8E1;
+    --bg-elevated: #F2F1EE;
+    --border-color: #E2DFD8;
+    --border-subtle: #ECEAE4;
 
-    --text-main: #14171A;
-    --text-muted: #5B6575;
-    --text-subtle: #8893A4;
+    --text-main: #111418;
+    --text-muted: #4B5563;
+    --text-subtle: #6B7280;
 
-    --brand-gold: #D49B1E;
-    --brand-gold-glow: rgba(212, 155, 30, 0.2);
-    --brand-orange: #EA580C;
+    --brand-gold: #C98B10;
+    --brand-gold-glow: rgba(201, 139, 16, 0.18);
+    --brand-orange: #E04E15;
     --brand-red: #DC2626;
     --brand-blue: #1A56DB;
 
-    --glass-nav: rgba(247, 246, 243, 0.88);
-    --glass-card: rgba(255, 255, 255, 0.85);
+    --glass-nav: rgba(255, 255, 255, 0.92);
+    --glass-card: rgba(255, 255, 255, 0.95);
   }
 
   body {
@@ -58,7 +58,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 }
 
@@ -79,12 +79,17 @@
 }
 
 /* ==========================================================================
-   GSPL MILLION-DOLLAR DESIGN SYSTEM UTILITIES
+   GSPL LUXURY DESIGN SYSTEM UTILITIES
    ========================================================================== */
 
-/* Animated Fire / Aura Gradients */
 .gold-gradient-text {
   background: linear-gradient(135deg, #FFE272 0%, #F5C042 50%, #FF8A00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:root.light .gold-gradient-text {
+  background: linear-gradient(135deg, #C98B10 0%, #D97706 60%, #B45309 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -95,22 +100,33 @@
   -webkit-text-fill-color: transparent;
 }
 
+:root.light .fire-gradient-text {
+  background: linear-gradient(135deg, #EA580C 0%, #DC2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Glass & Card Surfaces */
 .luxury-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 1.25rem;
+  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.05);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .luxury-card:hover {
-  border-color: rgba(255, 90, 31, 0.4);
-  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.35), 0 0 24px -6px var(--brand-gold-glow);
+  border-color: rgba(255, 90, 31, 0.35);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.12), 0 0 20px -6px var(--brand-gold-glow);
+}
+
+:root.dark .luxury-card {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
 /* Action Buttons */
 .luxury-btn-primary {
-  background: linear-gradient(135deg, #FF642D 0%, #E02424 100%);
+  background: linear-gradient(135deg, #FF5A1F 0%, #E02424 100%);
   color: #FFFFFF;
   font-weight: 700;
   border-radius: 0.875rem;
@@ -120,14 +136,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 16px -2px rgba(224, 36, 36, 0.45);
+  box-shadow: 0 4px 14px -2px rgba(224, 36, 36, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .luxury-btn-primary:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.08);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -2px rgba(255, 100, 45, 0.6);
+  box-shadow: 0 8px 22px -2px rgba(255, 90, 31, 0.55);
 }
 
 .luxury-btn-secondary {
@@ -145,22 +161,28 @@
 }
 
 .luxury-btn-secondary:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-card);
   border-color: var(--brand-gold);
 }
 
-/* Fire Aura Breathing Animation */
-@keyframes fireBreath {
-  0%, 100% {
-    transform: scale(1) translate(0%, 0%);
-    opacity: 0.45;
+/* Upward Floating Spark Embers Animation */
+@keyframes floatUpward {
+  0% {
+    transform: translateY(105vh) translateX(0) scale(0.6);
+    opacity: 0;
   }
-  50% {
-    transform: scale(1.12) translate(-3%, 2%);
-    opacity: 0.75;
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(35px) scale(1.2);
+    opacity: 0;
   }
 }
 
-.animate-fire-breath {
-  animation: fireBreath 8s ease-in-out infinite alternate;
+.animate-spark-rise {
+  animation: floatUpward 11s linear infinite;
 }

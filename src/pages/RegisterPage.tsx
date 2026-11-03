@@ -210,7 +210,8 @@ export const RegisterPage: React.FC = () => {
                   <option value="A">Wing A</option>
                   <option value="B">Wing B</option>
                   <option value="C">Wing C</option>
-                  <option value="Other">Other</option>
+                  <option value="D">Wing D</option>
+                  <option value="E">Wing E</option>
                 </select>
               </div>
 
