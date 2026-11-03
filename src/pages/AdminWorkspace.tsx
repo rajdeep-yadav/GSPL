@@ -28,6 +28,7 @@ import { downloadRegistrationsExcel, downloadRegistrationsCSV } from '../service
 import { PlayerRegistration, Team, AdminRole, CricketFrequency, BuildingWing, TShirtSize, PlayerCategory } from '../types';
 
 import { AdminLogin } from '../components/admin/AdminLogin';
+import { MobileScoringDeck } from '../components/scoring/MobileScoringDeck';
 
 export const AdminWorkspace: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -45,6 +46,7 @@ export const AdminWorkspace: React.FC = () => {
     runRandomAllocation,
     resetAllocations,
     matches,
+    deliveries,
     recordDelivery,
     undoLastDelivery,
     updateMatchStatus,
@@ -732,18 +734,18 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'scoring' && (
           <div className="space-y-6">
-            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 sm:p-8 space-y-6">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-4 sm:p-8 space-y-6">
               
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-black text-[var(--text-main)]">Live Box Cricket Scoring Console</h3>
-                  <p className="text-xs text-[var(--text-muted)]">Deliveries directly update spectator scoreboards and points table.</p>
+                  <h3 className="text-lg sm:text-xl font-black text-[var(--text-main)]">Live Matchday Scoring Console</h3>
+                  <p className="text-xs text-[var(--text-muted)]">Mobile-first one-tap scoring deck with immediate Realtime sync.</p>
                 </div>
 
                 <select
                   value={selectedMatchId}
                   onChange={(e) => setSelectedMatchId(e.target.value)}
-                  className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs font-bold text-[#FF7938] outline-none"
+                  className="px-3 py-2.5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs font-bold text-[#FF5A1F] outline-none"
                 >
                   {matches.map(m => (
                     <option key={m.id} value={m.id}>
@@ -753,199 +755,18 @@ export const AdminWorkspace: React.FC = () => {
                 </select>
               </div>
 
-              {selectedMatch && (
-                <div className="space-y-6">
-                  
-                  {/* Current scoreboard banner */}
-                  <div className="bg-[var(--bg-elevated)] p-6 rounded-2xl border border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
-                      <span className="text-xs font-bold uppercase text-[#FF7938]">
-                        Match #{selectedMatch.match_number} • {selectedMatch.stage}
-                      </span>
-                      <h4 className="text-2xl font-black text-[var(--text-main)] mt-1">
-                        {selectedMatch.team1_name} vs {selectedMatch.team2_name}
-                      </h4>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-3xl font-mono font-black text-[#FF5722]">
-                        {selectedMatch.current_innings === 2 ? 
-                          `${selectedMatch.innings2?.runs || 0}/${selectedMatch.innings2?.wickets || 0} (${selectedMatch.innings2?.overs_bowled || 0} ov)` :
-                          `${selectedMatch.innings1?.runs || 0}/${selectedMatch.innings1?.wickets || 0} (${selectedMatch.innings1?.overs_bowled || 0} ov)`}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)]">
-                        {selectedMatch.current_innings === 2 ? `Target: ${selectedMatch.innings2?.target || 0}` : '1st Innings in progress'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pitch Participants */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Striker Batter"
-                      value={strikerName}
-                      onChange={(e) => setStrikerName(e.target.value)}
-                      className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Non-Striker Batter"
-                      value={nonStrikerName}
-                      onChange={(e) => setNonStrikerName(e.target.value)}
-                      className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Current Bowler"
-                      value={bowlerName}
-                      onChange={(e) => setBowlerName(e.target.value)}
-                      className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
-                    />
-                  </div>
-
-                  {/* Big Scoring Buttons */}
-                  <div className="space-y-3">
-                    <span className="text-xs uppercase font-extrabold text-[var(--text-muted)] tracking-wider block">
-                      Record Delivery Outcome
-                    </span>
-                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
-                      {[0, 1, 2, 3, 4, 6].map(runs => (
-                        <button
-                          key={runs}
-                          onClick={() => {
-                            const inn = selectedMatch.current_innings || 1;
-                            const overs = inn === 1 ? (selectedMatch.innings1?.overs_bowled || 0) : (selectedMatch.innings2?.overs_bowled || 0);
-                            const overNum = Math.floor(overs);
-                            const ballNum = Math.round((overs - overNum) * 10) + 1;
-
-                            recordDelivery({
-                              match_id: selectedMatch.id,
-                              innings_number: inn,
-                              over_number: overNum,
-                              ball_number: ballNum,
-                              bowler_name: bowlerName,
-                              batsman_name: strikerName,
-                              non_striker_name: nonStrikerName,
-                              runs_scored: runs,
-                              is_wicket: false,
-                              extra_runs: 0
-                            });
-                          }}
-                          className="py-4 rounded-2xl bg-[var(--bg-elevated)] hover:bg-[#FF5722] hover:text-[var(--text-main)] border border-[var(--border-color)] font-mono font-black text-xl text-[var(--text-main)] transition active:scale-95 shadow-md"
-                        >
-                          {runs}
-                        </button>
-                      ))}
-
-                      {/* Wicket */}
-                      <button
-                        onClick={() => {
-                          const inn = selectedMatch.current_innings || 1;
-                          const overs = inn === 1 ? (selectedMatch.innings1?.overs_bowled || 0) : (selectedMatch.innings2?.overs_bowled || 0);
-                          const overNum = Math.floor(overs);
-                          const ballNum = Math.round((overs - overNum) * 10) + 1;
-
-                          recordDelivery({
-                            match_id: selectedMatch.id,
-                            innings_number: inn,
-                            over_number: overNum,
-                            ball_number: ballNum,
-                            bowler_name: bowlerName,
-                            batsman_name: strikerName,
-                            non_striker_name: nonStrikerName,
-                            runs_scored: 0,
-                            is_wicket: true,
-                            wicket_type: 'caught',
-                            extra_runs: 0
-                          });
-                        }}
-                        className="py-4 rounded-2xl bg-rose-600 hover:bg-rose-500 font-extrabold text-sm text-[var(--text-main)] transition active:scale-95 shadow-md shadow-rose-600/30"
-                      >
-                        WICKET
-                      </button>
-
-                      {/* Wide */}
-                      <button
-                        onClick={() => {
-                          const inn = selectedMatch.current_innings || 1;
-                          const overs = inn === 1 ? (selectedMatch.innings1?.overs_bowled || 0) : (selectedMatch.innings2?.overs_bowled || 0);
-                          const overNum = Math.floor(overs);
-                          const ballNum = Math.round((overs - overNum) * 10);
-
-                          recordDelivery({
-                            match_id: selectedMatch.id,
-                            innings_number: inn,
-                            over_number: overNum,
-                            ball_number: ballNum,
-                            bowler_name: bowlerName,
-                            batsman_name: strikerName,
-                            non_striker_name: nonStrikerName,
-                            runs_scored: 0,
-                            is_wicket: false,
-                            extra_type: 'wide',
-                            extra_runs: 1
-                          });
-                        }}
-                        className="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 font-extrabold text-sm text-[var(--text-main)] transition active:scale-95"
-                      >
-                        WIDE
-                      </button>
-
-                      {/* No Ball */}
-                      <button
-                        onClick={() => {
-                          const inn = selectedMatch.current_innings || 1;
-                          const overs = inn === 1 ? (selectedMatch.innings1?.overs_bowled || 0) : (selectedMatch.innings2?.overs_bowled || 0);
-                          const overNum = Math.floor(overs);
-                          const ballNum = Math.round((overs - overNum) * 10);
-
-                          recordDelivery({
-                            match_id: selectedMatch.id,
-                            innings_number: inn,
-                            over_number: overNum,
-                            ball_number: ballNum,
-                            bowler_name: bowlerName,
-                            batsman_name: strikerName,
-                            non_striker_name: nonStrikerName,
-                            runs_scored: 0,
-                            is_wicket: false,
-                            extra_type: 'no-ball',
-                            extra_runs: 1
-                          });
-                        }}
-                        className="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 font-extrabold text-sm text-[var(--text-main)] transition active:scale-95"
-                      >
-                        NO BALL
-                      </button>
-
-                      {/* Undo Delivery */}
-                      <button
-                        onClick={() => undoLastDelivery(selectedMatch.id)}
-                        className="col-span-2 sm:col-span-1 py-4 rounded-2xl bg-[#27272a] hover:bg-[#3f3f46] text-xs font-bold text-[var(--text-main)] transition active:scale-95"
-                      >
-                        UNDO
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Status switches */}
-                  <div className="pt-4 border-t border-[var(--border-color)] flex items-center gap-3">
-                    <span className="text-xs text-[var(--text-muted)]">Set Status:</span>
-                    <button
-                      onClick={() => updateMatchStatus(selectedMatch.id, 'Live')}
-                      className="px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 font-bold text-xs"
-                    >
-                      Set Live
-                    </button>
-                    <button
-                      onClick={() => updateMatchStatus(selectedMatch.id, 'Completed')}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-400 font-bold text-xs"
-                    >
-                      Set Completed
-                    </button>
-                  </div>
-
+              {selectedMatch ? (
+                <MobileScoringDeck
+                  match={selectedMatch}
+                  deliveries={deliveries[selectedMatch.id] || []}
+                  onRecordDelivery={recordDelivery}
+                  onUndoDelivery={undoLastDelivery}
+                  onUpdateStatus={updateMatchStatus}
+                />
+              ) : (
+                <div className="p-8 text-center bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-subtle)] space-y-2">
+                  <p className="text-sm font-bold text-[var(--text-main)]">No Match Selected</p>
+                  <p className="text-xs text-[var(--text-muted)]">Create or select a fixture to begin live phone scoring.</p>
                 </div>
               )}
 
@@ -954,7 +775,7 @@ export const AdminWorkspace: React.FC = () => {
         )}
 
         {/* =========================================================================
-            TAB 7: FINANCES & BUDGET
+            TAB 7: FINANCES & BUDGET TRACKER
         ========================================================================== */}
         {activeTab === 'finances' && (
           <div className="space-y-6">
