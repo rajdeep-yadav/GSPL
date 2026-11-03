@@ -27,7 +27,12 @@ import { useApp } from '../context/AppContext';
 import { downloadRegistrationsExcel, downloadRegistrationsCSV } from '../services/excelService';
 import { PlayerRegistration, Team, AdminRole, CricketFrequency, BuildingWing, TShirtSize, PlayerCategory } from '../types';
 
+import { AdminLogin } from '../components/admin/AdminLogin';
+
 export const AdminWorkspace: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('gspl_admin_authenticated') === 'true';
+  });
   const { 
     registrations, 
     updateRegistrationStatus, 
@@ -115,6 +120,10 @@ export const AdminWorkspace: React.FC = () => {
   const totalExpense = finances.filter(f => f.type === 'Expense').reduce((sum, f) => sum + f.amount, 0);
   const netBalance = totalIncome - totalExpense;
 
+  if (!isAuthenticated) {
+    return <AdminLogin onSuccess={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col md:flex-row transition-colors">
       
@@ -147,7 +156,7 @@ export const AdminWorkspace: React.FC = () => {
 
           {/* Navigation Items */}
           <nav className="space-y-1">
-            <p className="px-2 text-[10px] font-extrabold uppercase tracking-widest text-[#71717A] mb-2">
+            <p className="px-2 text-[10px] font-extrabold uppercase tracking-widest text-[var(--text-subtle)] mb-2">
               Management Modules
             </p>
 
@@ -170,7 +179,7 @@ export const AdminWorkspace: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                     isActive
-                      ? 'bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-red)] text-white shadow-md'
+                      ? 'bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-red)] text-[var(--text-main)] shadow-md'
                       : 'text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-main)]'
                   }`}
                 >
@@ -179,7 +188,7 @@ export const AdminWorkspace: React.FC = () => {
                     <span>{tab.name}</span>
                   </div>
                   {Boolean(tab.badge && tab.badge > 0) && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded-full bg-white/20 text-white">
+                    <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded-full bg-white/20 text-[var(--text-main)]">
                       {tab.badge}
                     </span>
                   )}
@@ -190,18 +199,18 @@ export const AdminWorkspace: React.FC = () => {
         </div>
 
         {/* Excel Sync status & Quick Export */}
-        <div className="space-y-3 pt-4 border-t border-[#1f1f23]">
-          <div className="bg-[#191919] p-3 rounded-xl border border-[#27272a] text-xs space-y-2">
-            <div className="flex items-center justify-between text-[10px] text-[#A1A1AA] uppercase font-bold">
+        <div className="space-y-3 pt-4 border-t border-[var(--border-subtle)]">
+          <div className="bg-[var(--bg-elevated)] p-3 rounded-xl border border-[var(--border-color)] text-xs space-y-2">
+            <div className="flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase font-bold">
               <span>Excel Live Sync</span>
               <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
             </div>
-            <p className="text-[11px] text-[#A1A1AA]">
-              Synced: <span className="text-white font-mono">{lastExcelSync || 'Just now'}</span>
+            <p className="text-[11px] text-[var(--text-muted)]">
+              Synced: <span className="text-[var(--text-main)] font-mono">{lastExcelSync || 'Just now'}</span>
             </p>
             <button
               onClick={() => triggerManualExcelSync()}
-              className="w-full py-1.5 rounded-lg bg-[#27272a] hover:bg-[#323238] text-[11px] font-bold text-white flex items-center justify-center gap-1.5 transition"
+              className="w-full py-1.5 rounded-lg bg-[#27272a] hover:bg-[#323238] text-[11px] font-bold text-[var(--text-main)] flex items-center justify-center gap-1.5 transition"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Sync Workbook Now</span>
@@ -211,14 +220,14 @@ export const AdminWorkspace: React.FC = () => {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => downloadRegistrationsExcel(registrations)}
-              className="py-1.5 px-2 rounded-lg bg-[#191919] border border-[#27272a] hover:border-emerald-500/50 text-[10px] font-bold text-white flex items-center justify-center gap-1 transition"
+              className="py-1.5 px-2 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-emerald-500/50 text-[10px] font-bold text-[var(--text-main)] flex items-center justify-center gap-1 transition"
             >
               <Download className="w-3 h-3 text-emerald-400" />
               <span>.XLSX</span>
             </button>
             <button
               onClick={() => downloadRegistrationsCSV(registrations)}
-              className="py-1.5 px-2 rounded-lg bg-[#191919] border border-[#27272a] hover:border-emerald-500/50 text-[10px] font-bold text-white flex items-center justify-center gap-1 transition"
+              className="py-1.5 px-2 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-emerald-500/50 text-[10px] font-bold text-[var(--text-main)] flex items-center justify-center gap-1 transition"
             >
               <Download className="w-3 h-3 text-cyan-400" />
               <span>.CSV</span>
@@ -232,9 +241,9 @@ export const AdminWorkspace: React.FC = () => {
       <main className="flex-1 p-6 md:p-10 space-y-8 overflow-y-auto max-h-screen">
         
         {/* Top Header */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#27272a] gap-4">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[var(--border-color)] gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-[var(--text-main)] uppercase tracking-tight">
               {activeTab === 'overview' && 'Tournament Control Dashboard'}
               {activeTab === 'registrations' && 'Resident Registrations & Categorization'}
               {activeTab === 'captains' && 'Captain Nomination & Selection'}
@@ -245,28 +254,23 @@ export const AdminWorkspace: React.FC = () => {
               {activeTab === 'tasks' && 'Organizing Committee Tasks'}
               {activeTab === 'settings' && 'Tournament Configuration & Rules'}
             </h1>
-            <p className="text-xs text-[#A1A1AA] mt-1">
+            <p className="text-xs text-[var(--text-muted)] mt-1">
               Gokul Shrishti Premier League 2026 Central Database State
             </p>
           </div>
 
-          {/* Quick role switcher for multi-admin verification */}
+          {/* Header Action: Theme Toggle & Logout */}
           <div className="flex items-center gap-3">
-            <span className="text-xs text-[#71717A] uppercase font-bold">Switch Account:</span>
-            <select
-              value={currentAdmin?.id || ''}
-              onChange={(e) => {
-                const found = admins.find(a => a.id === e.target.value);
-                setCurrentAdmin(found || null);
+            <button
+              onClick={() => {
+                localStorage.removeItem('gspl_admin_authenticated');
+                setIsAuthenticated(false);
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#191919] border border-[#27272a] text-xs font-bold text-white outline-none"
+              className="luxury-btn-secondary !py-2 !px-4 text-xs font-bold text-red-500 hover:border-red-500/50 flex items-center gap-1.5 transition"
             >
-              {admins.map(a => (
-                <option key={a.id} value={a.id}>
-                  {a.name} ({a.role})
-                </option>
-              ))}
-            </select>
+              <LogOut className="w-3.5 h-3.5 text-red-500" />
+              <span>Log Out</span>
+            </button>
           </div>
         </header>
 
@@ -277,33 +281,33 @@ export const AdminWorkspace: React.FC = () => {
           <div className="space-y-8">
             {/* Metric Tiles */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl space-y-2">
-                <span className="text-xs uppercase font-extrabold text-[#A1A1AA] tracking-wider">Total Registrations</span>
-                <p className="text-3xl font-mono font-black text-white">{registrations.length}</p>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl space-y-2">
+                <span className="text-xs uppercase font-extrabold text-[var(--text-muted)] tracking-wider">Total Registrations</span>
+                <p className="text-3xl font-mono font-black text-[var(--text-main)]">{registrations.length}</p>
                 <p className="text-[11px] text-emerald-400 font-semibold">
                   {registrations.filter(r => r.status === 'Approved').length} Approved • {registrations.filter(r => r.status === 'Pending').length} Pending
                 </p>
               </div>
 
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl space-y-2">
-                <span className="text-xs uppercase font-extrabold text-[#A1A1AA] tracking-wider">Teams & Squads</span>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl space-y-2">
+                <span className="text-xs uppercase font-extrabold text-[var(--text-muted)] tracking-wider">Teams & Squads</span>
                 <p className="text-3xl font-mono font-black text-[#FF7938]">{teams.length}</p>
-                <p className="text-[11px] text-[#A1A1AA]">
+                <p className="text-[11px] text-[var(--text-muted)]">
                   {registrations.filter(r => r.assigned_team_id).length} players allocated
                 </p>
               </div>
 
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl space-y-2">
-                <span className="text-xs uppercase font-extrabold text-[#A1A1AA] tracking-wider">Net Finance Reserve</span>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl space-y-2">
+                <span className="text-xs uppercase font-extrabold text-[var(--text-muted)] tracking-wider">Net Finance Reserve</span>
                 <p className="text-3xl font-mono font-black text-emerald-400">₹{netBalance.toLocaleString()}</p>
-                <p className="text-[11px] text-[#A1A1AA]">
+                <p className="text-[11px] text-[var(--text-muted)]">
                   Income: ₹{totalIncome.toLocaleString()} | Spent: ₹{totalExpense.toLocaleString()}
                 </p>
               </div>
 
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl space-y-2">
-                <span className="text-xs uppercase font-extrabold text-[#A1A1AA] tracking-wider">Active Match Status</span>
-                <p className="text-3xl font-mono font-black text-white">
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl space-y-2">
+                <span className="text-xs uppercase font-extrabold text-[var(--text-muted)] tracking-wider">Active Match Status</span>
+                <p className="text-3xl font-mono font-black text-[var(--text-main)]">
                   {matches.filter(m => m.status === 'Live').length > 0 ? 'Live In Arena' : 'No Live Match'}
                 </p>
                 <p className="text-[11px] text-[#FF5722] font-semibold">
@@ -313,34 +317,34 @@ export const AdminWorkspace: React.FC = () => {
             </div>
 
             {/* Quick Actions Panel */}
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 space-y-4">
-              <h3 className="text-lg font-black text-white">Recommended Admin Workflows</h3>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 space-y-4">
+              <h3 className="text-lg font-black text-[var(--text-main)]">Recommended Admin Workflows</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <button
                   onClick={() => setActiveTab('registrations')}
-                  className="p-4 rounded-2xl bg-[#191919] border border-[#27272a] hover:border-[#FF5722] text-left transition"
+                  className="p-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-[#FF5722] text-left transition"
                 >
                   <Users className="w-5 h-5 text-[#FF7938] mb-2" />
-                  <p className="text-sm font-bold text-white">Review Pending Entries</p>
-                  <p className="text-xs text-[#A1A1AA] mt-1">Review {registrations.filter(r => r.status === 'Pending').length} new resident submissions</p>
+                  <p className="text-sm font-bold text-[var(--text-main)]">Review Pending Entries</p>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">Review {registrations.filter(r => r.status === 'Pending').length} new resident submissions</p>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('allocation')}
-                  className="p-4 rounded-2xl bg-[#191919] border border-[#27272a] hover:border-[#FF5722] text-left transition"
+                  className="p-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-[#FF5722] text-left transition"
                 >
                   <Shuffle className="w-5 h-5 text-emerald-400 mb-2" />
-                  <p className="text-sm font-bold text-white">Run Random Category Draft</p>
-                  <p className="text-xs text-[#A1A1AA] mt-1">Distribute Category A, B, C evenly across captains</p>
+                  <p className="text-sm font-bold text-[var(--text-main)]">Run Random Category Draft</p>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">Distribute Category A, B, C evenly across captains</p>
                 </button>
 
                 <button
                   onClick={() => setActiveTab('scoring')}
-                  className="p-4 rounded-2xl bg-[#191919] border border-[#27272a] hover:border-[#FF5722] text-left transition"
+                  className="p-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-color)] hover:border-[#FF5722] text-left transition"
                 >
                   <Radio className="w-5 h-5 text-red-400 mb-2" />
-                  <p className="text-sm font-bold text-white">Open Live Scoring Console</p>
-                  <p className="text-xs text-[#A1A1AA] mt-1">Record ball-by-ball deliveries for match #{selectedMatch?.match_number || 1}</p>
+                  <p className="text-sm font-bold text-[var(--text-main)]">Open Live Scoring Console</p>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">Record ball-by-ball deliveries for match #{selectedMatch?.match_number || 1}</p>
                 </button>
               </div>
             </div>
@@ -360,14 +364,14 @@ export const AdminWorkspace: React.FC = () => {
                 placeholder="Search by name, ID, or flat number..."
                 value={regSearch}
                 onChange={(e) => setRegSearch(e.target.value)}
-                className="w-full sm:w-80 px-4 py-2.5 rounded-xl bg-[#121212] border border-[#27272a] text-xs text-white outline-none focus:border-[#FF5722]"
+                className="w-full sm:w-80 px-4 py-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none focus:border-[#FF5722]"
               />
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <select
                   value={regStatusFilter}
                   onChange={(e) => setRegStatusFilter(e.target.value as any)}
-                  className="px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 >
                   <option value="All">All Statuses</option>
                   <option value="Pending">Pending</option>
@@ -378,7 +382,7 @@ export const AdminWorkspace: React.FC = () => {
                 <select
                   value={regCategoryFilter}
                   onChange={(e) => setRegCategoryFilter(e.target.value as any)}
-                  className="px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 >
                   <option value="All">All Categories</option>
                   <option value="A">Category A (Regular)</option>
@@ -389,11 +393,11 @@ export const AdminWorkspace: React.FC = () => {
             </div>
 
             {/* Registrations Table */}
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl overflow-hidden shadow-2xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-[#191919] border-b border-[#27272a] text-[10px] uppercase font-bold text-[#A1A1AA]">
+                    <tr className="bg-[var(--bg-elevated)] border-b border-[var(--border-color)] text-[10px] uppercase font-bold text-[var(--text-muted)]">
                       <th className="py-3 px-4">Reg ID</th>
                       <th className="py-3 px-4">Resident Name</th>
                       <th className="py-3 px-3">Age</th>
@@ -410,18 +414,18 @@ export const AdminWorkspace: React.FC = () => {
                     {filteredRegs.map(reg => (
                       <tr key={reg.id} className="hover:bg-[#181818] transition">
                         <td className="py-3 px-4 font-mono font-bold text-[#FF7938]">{reg.id}</td>
-                        <td className="py-3 px-4 font-bold text-white">{reg.full_name}</td>
-                        <td className="py-3 px-3 font-mono text-[#A1A1AA]">{reg.age}</td>
-                        <td className="py-3 px-3 text-white font-medium">Wing {reg.wing} - {reg.flat_number}</td>
-                        <td className="py-3 px-3 text-[#A1A1AA]">{reg.cricket_frequency}</td>
-                        <td className="py-3 px-3 font-bold text-white">{reg.tshirt_size}</td>
+                        <td className="py-3 px-4 font-bold text-[var(--text-main)]">{reg.full_name}</td>
+                        <td className="py-3 px-3 font-mono text-[var(--text-muted)]">{reg.age}</td>
+                        <td className="py-3 px-3 text-[var(--text-main)] font-medium">Wing {reg.wing} - {reg.flat_number}</td>
+                        <td className="py-3 px-3 text-[var(--text-muted)]">{reg.cricket_frequency}</td>
+                        <td className="py-3 px-3 font-bold text-[var(--text-main)]">{reg.tshirt_size}</td>
                         <td className="py-3 px-3">
                           {reg.captaincy_interest ? (
                             <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
                               Interested
                             </span>
                           ) : (
-                            <span className="text-[10px] text-[#71717A]">No</span>
+                            <span className="text-[10px] text-[var(--text-subtle)]">No</span>
                           )}
                         </td>
 
@@ -430,7 +434,7 @@ export const AdminWorkspace: React.FC = () => {
                           <select
                             value={reg.category}
                             onChange={(e) => updatePlayerCategory(reg.id, e.target.value as PlayerCategory)}
-                            className="bg-[#191919] border border-[#27272a] rounded px-2 py-1 text-[11px] font-bold text-[#FF7938] outline-none"
+                            className="bg-[var(--bg-elevated)] border border-[var(--border-color)] rounded px-2 py-1 text-[11px] font-bold text-[#FF7938] outline-none"
                           >
                             <option value="A">Cat A</option>
                             <option value="B">Cat B</option>
@@ -484,18 +488,18 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'captains' && (
           <div className="space-y-6">
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 space-y-4">
-              <h3 className="text-lg font-black text-white">Captain Candidates & Team Appointments</h3>
-              <p className="text-xs text-[#A1A1AA]">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 space-y-4">
+              <h3 className="text-lg font-black text-[var(--text-main)]">Captain Candidates & Team Appointments</h3>
+              <p className="text-xs text-[var(--text-muted)]">
                 Players who expressed interest in captaincy and have approved registration status. Assign one captain per franchise team.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 {teams.map(team => (
-                  <div key={team.id} className="bg-[#191919] border border-[#27272a] p-4 rounded-2xl space-y-3">
+                  <div key={team.id} className="bg-[var(--bg-elevated)] border border-[var(--border-color)] p-4 rounded-2xl space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-white text-sm">{team.name} ({team.short_code})</span>
-                      <span className="text-[10px] text-[#A1A1AA] uppercase font-bold">Appointed Captain</span>
+                      <span className="font-bold text-[var(--text-main)] text-sm">{team.name} ({team.short_code})</span>
+                      <span className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Appointed Captain</span>
                     </div>
 
                     <select
@@ -506,7 +510,7 @@ export const AdminWorkspace: React.FC = () => {
                           setTeamCaptain(team.id, selectedCandidate.id, selectedCandidate.full_name);
                         }
                       }}
-                      className="w-full px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-xs font-bold text-[#FF7938] outline-none"
+                      className="w-full px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-bold text-[#FF7938] outline-none"
                     >
                       <option value="">-- Choose Team Captain --</option>
                       {captainCandidates.map(c => (
@@ -516,8 +520,8 @@ export const AdminWorkspace: React.FC = () => {
                       ))}
                     </select>
 
-                    <p className="text-[10px] text-[#71717A]">
-                      Current Leader: <strong className="text-white">{team.captain_name || 'None Assigned'}</strong>
+                    <p className="text-[10px] text-[var(--text-subtle)]">
+                      Current Leader: <strong className="text-[var(--text-main)]">{team.captain_name || 'None Assigned'}</strong>
                     </p>
                   </div>
                 ))}
@@ -531,11 +535,11 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'allocation' && (
           <div className="space-y-6">
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-black text-white">Non-Auction Balanced Random Allocation</h3>
-                  <p className="text-xs text-[#A1A1AA] mt-1">
+                  <h3 className="text-xl font-black text-[var(--text-main)]">Non-Auction Balanced Random Allocation</h3>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">
                     Evenly distributes Category A, B, and C players across all franchise teams with zero duplicate allocations.
                   </p>
                 </div>
@@ -546,7 +550,7 @@ export const AdminWorkspace: React.FC = () => {
                       resetAllocations();
                       setAllocationMsg('Player allocations cleared (captains preserved).');
                     }}
-                    className="px-4 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs font-bold text-rose-400 hover:border-rose-500/50 transition"
+                    className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs font-bold text-rose-400 hover:border-rose-500/50 transition"
                   >
                     Reset Allocations
                   </button>
@@ -556,16 +560,16 @@ export const AdminWorkspace: React.FC = () => {
               {allocationMsg && (
                 <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between">
                   <span>{allocationMsg}</span>
-                  <button onClick={() => setAllocationMsg(null)} className="text-white hover:opacity-75 font-bold">×</button>
+                  <button onClick={() => setAllocationMsg(null)} className="text-[var(--text-main)] hover:opacity-75 font-bold">×</button>
                 </div>
               )}
 
               {/* Category pools summary */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-[#191919] p-4 rounded-2xl border border-[#27272a] space-y-3">
+                <div className="bg-[var(--bg-elevated)] p-4 rounded-2xl border border-[var(--border-color)] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-amber-400 uppercase">Category A (Regulars)</span>
-                    <span className="text-lg font-mono font-black text-white">
+                    <span className="text-lg font-mono font-black text-[var(--text-main)]">
                       {registrations.filter(r => r.category === 'A' && r.status === 'Approved').length}
                     </span>
                   </div>
@@ -574,16 +578,16 @@ export const AdminWorkspace: React.FC = () => {
                       const res = runRandomAllocation('A');
                       setAllocationMsg(res.details);
                     }}
-                    className="w-full py-2 rounded-xl bg-[#FF5722] hover:bg-[#FF7938] text-white font-bold text-xs shadow-md transition"
+                    className="w-full py-2 rounded-xl bg-[#FF5722] hover:bg-[#FF7938] text-[var(--text-main)] font-bold text-xs shadow-md transition"
                   >
                     Draft Category A
                   </button>
                 </div>
 
-                <div className="bg-[#191919] p-4 rounded-2xl border border-[#27272a] space-y-3">
+                <div className="bg-[var(--bg-elevated)] p-4 rounded-2xl border border-[var(--border-color)] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-blue-400 uppercase">Category B (Occasional)</span>
-                    <span className="text-lg font-mono font-black text-white">
+                    <span className="text-lg font-mono font-black text-[var(--text-main)]">
                       {registrations.filter(r => r.category === 'B' && r.status === 'Approved').length}
                     </span>
                   </div>
@@ -592,16 +596,16 @@ export const AdminWorkspace: React.FC = () => {
                       const res = runRandomAllocation('B');
                       setAllocationMsg(res.details);
                     }}
-                    className="w-full py-2 rounded-xl bg-[#FF5722] hover:bg-[#FF7938] text-white font-bold text-xs shadow-md transition"
+                    className="w-full py-2 rounded-xl bg-[#FF5722] hover:bg-[#FF7938] text-[var(--text-main)] font-bold text-xs shadow-md transition"
                   >
                     Draft Category B
                   </button>
                 </div>
 
-                <div className="bg-[#191919] p-4 rounded-2xl border border-[#27272a] space-y-3">
+                <div className="bg-[var(--bg-elevated)] p-4 rounded-2xl border border-[var(--border-color)] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-zinc-300 uppercase">Category C (Beginners)</span>
-                    <span className="text-lg font-mono font-black text-white">
+                    <span className="text-lg font-mono font-black text-[var(--text-main)]">
                       {registrations.filter(r => r.category === 'C' && r.status === 'Approved').length}
                     </span>
                   </div>
@@ -610,7 +614,7 @@ export const AdminWorkspace: React.FC = () => {
                       const res = runRandomAllocation('C');
                       setAllocationMsg(res.details);
                     }}
-                    className="w-full py-2 rounded-xl bg-[#FF5722] hover:bg-[#FF7938] text-white font-bold text-xs shadow-md transition"
+                    className="w-full py-2 rounded-xl bg-[#FF5722] hover:bg-[#FF7938] text-[var(--text-main)] font-bold text-xs shadow-md transition"
                   >
                     Draft Category C
                   </button>
@@ -619,19 +623,19 @@ export const AdminWorkspace: React.FC = () => {
 
               {/* Team squad rosters preview */}
               <div className="pt-4 space-y-4">
-                <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                <h4 className="text-sm font-black text-[var(--text-main)] uppercase tracking-wider">
                   Live Franchise Squad Previews
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {teams.map(t => {
                     const squad = registrations.filter(r => r.assigned_team_id === t.id);
                     return (
-                      <div key={t.id} className="bg-[#191919] p-4 rounded-2xl border border-[#27272a] space-y-2">
+                      <div key={t.id} className="bg-[var(--bg-elevated)] p-4 rounded-2xl border border-[var(--border-color)] space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-white text-xs">{t.name}</span>
+                          <span className="font-bold text-[var(--text-main)] text-xs">{t.name}</span>
                           <span className="text-[10px] font-mono text-[#FF7938] font-bold">{squad.length} Players</span>
                         </div>
-                        <ul className="text-[11px] text-[#A1A1AA] space-y-1 max-h-36 overflow-y-auto pr-1">
+                        <ul className="text-[11px] text-[var(--text-muted)] space-y-1 max-h-36 overflow-y-auto pr-1">
                           {squad.map(p => (
                             <li key={p.id} className="flex items-center justify-between">
                               <span className="truncate">{p.full_name}</span>
@@ -654,29 +658,29 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'teams' && (
           <div className="space-y-6">
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 space-y-6">
-              <h3 className="text-lg font-black text-white">Create & Configure Franchise Teams</h3>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 space-y-6">
+              <h3 className="text-lg font-black text-[var(--text-main)]">Create & Configure Franchise Teams</h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-[#191919] border border-[#27272a]">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-color)]">
                 <input
                   type="text"
                   placeholder="Team Name (e.g. Shrishti Titans)"
                   value={newTeamName}
                   onChange={(e) => setNewTeamName(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 />
                 <input
                   type="text"
                   placeholder="Short Code (e.g. ST)"
                   value={newTeamShort}
                   onChange={(e) => setNewTeamShort(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 />
                 <input
                   type="color"
                   value={newTeamColor}
                   onChange={(e) => setNewTeamColor(e.target.value)}
-                  className="h-9 w-full rounded-xl bg-[#121212] border border-[#27272a] cursor-pointer"
+                  className="h-9 w-full rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] cursor-pointer"
                 />
                 <button
                   onClick={() => {
@@ -692,7 +696,7 @@ export const AdminWorkspace: React.FC = () => {
                     setNewTeamName('');
                     setNewTeamShort('');
                   }}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#E53935] text-white font-bold text-xs"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#E53935] text-[var(--text-main)] font-bold text-xs"
                 >
                   Add Team
                 </button>
@@ -700,18 +704,18 @@ export const AdminWorkspace: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {teams.map(team => (
-                  <div key={team.id} className="bg-[#191919] p-5 rounded-2xl border border-[#27272a] space-y-2">
+                  <div key={team.id} className="bg-[var(--bg-elevated)] p-5 rounded-2xl border border-[var(--border-color)] space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div 
-                          className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-white"
+                          className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-[var(--text-main)]"
                           style={{ backgroundColor: team.primary_color }}
                         >
                           {team.short_code}
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm">{team.name}</p>
-                          <p className="text-[10px] text-[#A1A1AA]">Captain: {team.captain_name || 'Unassigned'}</p>
+                          <p className="font-bold text-[var(--text-main)] text-sm">{team.name}</p>
+                          <p className="text-[10px] text-[var(--text-muted)]">Captain: {team.captain_name || 'Unassigned'}</p>
                         </div>
                       </div>
                     </div>
@@ -728,18 +732,18 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'scoring' && (
           <div className="space-y-6">
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 sm:p-8 space-y-6">
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 sm:p-8 space-y-6">
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-xl font-black text-white">Live Box Cricket Scoring Console</h3>
-                  <p className="text-xs text-[#A1A1AA]">Deliveries directly update spectator scoreboards and points table.</p>
+                  <h3 className="text-xl font-black text-[var(--text-main)]">Live Box Cricket Scoring Console</h3>
+                  <p className="text-xs text-[var(--text-muted)]">Deliveries directly update spectator scoreboards and points table.</p>
                 </div>
 
                 <select
                   value={selectedMatchId}
                   onChange={(e) => setSelectedMatchId(e.target.value)}
-                  className="px-4 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs font-bold text-[#FF7938] outline-none"
+                  className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs font-bold text-[#FF7938] outline-none"
                 >
                   {matches.map(m => (
                     <option key={m.id} value={m.id}>
@@ -753,12 +757,12 @@ export const AdminWorkspace: React.FC = () => {
                 <div className="space-y-6">
                   
                   {/* Current scoreboard banner */}
-                  <div className="bg-[#191919] p-6 rounded-2xl border border-[#27272a] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="bg-[var(--bg-elevated)] p-6 rounded-2xl border border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                       <span className="text-xs font-bold uppercase text-[#FF7938]">
                         Match #{selectedMatch.match_number} • {selectedMatch.stage}
                       </span>
-                      <h4 className="text-2xl font-black text-white mt-1">
+                      <h4 className="text-2xl font-black text-[var(--text-main)] mt-1">
                         {selectedMatch.team1_name} vs {selectedMatch.team2_name}
                       </h4>
                     </div>
@@ -769,7 +773,7 @@ export const AdminWorkspace: React.FC = () => {
                           `${selectedMatch.innings2?.runs || 0}/${selectedMatch.innings2?.wickets || 0} (${selectedMatch.innings2?.overs_bowled || 0} ov)` :
                           `${selectedMatch.innings1?.runs || 0}/${selectedMatch.innings1?.wickets || 0} (${selectedMatch.innings1?.overs_bowled || 0} ov)`}
                       </p>
-                      <p className="text-xs text-[#A1A1AA]">
+                      <p className="text-xs text-[var(--text-muted)]">
                         {selectedMatch.current_innings === 2 ? `Target: ${selectedMatch.innings2?.target || 0}` : '1st Innings in progress'}
                       </p>
                     </div>
@@ -782,27 +786,27 @@ export const AdminWorkspace: React.FC = () => {
                       placeholder="Striker Batter"
                       value={strikerName}
                       onChange={(e) => setStrikerName(e.target.value)}
-                      className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white"
+                      className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
                     />
                     <input
                       type="text"
                       placeholder="Non-Striker Batter"
                       value={nonStrikerName}
                       onChange={(e) => setNonStrikerName(e.target.value)}
-                      className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white"
+                      className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
                     />
                     <input
                       type="text"
                       placeholder="Current Bowler"
                       value={bowlerName}
                       onChange={(e) => setBowlerName(e.target.value)}
-                      className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white"
+                      className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)]"
                     />
                   </div>
 
                   {/* Big Scoring Buttons */}
                   <div className="space-y-3">
-                    <span className="text-xs uppercase font-extrabold text-[#A1A1AA] tracking-wider block">
+                    <span className="text-xs uppercase font-extrabold text-[var(--text-muted)] tracking-wider block">
                       Record Delivery Outcome
                     </span>
                     <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
@@ -828,7 +832,7 @@ export const AdminWorkspace: React.FC = () => {
                               extra_runs: 0
                             });
                           }}
-                          className="py-4 rounded-2xl bg-[#191919] hover:bg-[#FF5722] hover:text-white border border-[#27272a] font-mono font-black text-xl text-white transition active:scale-95 shadow-md"
+                          className="py-4 rounded-2xl bg-[var(--bg-elevated)] hover:bg-[#FF5722] hover:text-[var(--text-main)] border border-[var(--border-color)] font-mono font-black text-xl text-[var(--text-main)] transition active:scale-95 shadow-md"
                         >
                           {runs}
                         </button>
@@ -856,7 +860,7 @@ export const AdminWorkspace: React.FC = () => {
                             extra_runs: 0
                           });
                         }}
-                        className="py-4 rounded-2xl bg-rose-600 hover:bg-rose-500 font-extrabold text-sm text-white transition active:scale-95 shadow-md shadow-rose-600/30"
+                        className="py-4 rounded-2xl bg-rose-600 hover:bg-rose-500 font-extrabold text-sm text-[var(--text-main)] transition active:scale-95 shadow-md shadow-rose-600/30"
                       >
                         WICKET
                       </button>
@@ -883,7 +887,7 @@ export const AdminWorkspace: React.FC = () => {
                             extra_runs: 1
                           });
                         }}
-                        className="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 font-extrabold text-sm text-white transition active:scale-95"
+                        className="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 font-extrabold text-sm text-[var(--text-main)] transition active:scale-95"
                       >
                         WIDE
                       </button>
@@ -910,7 +914,7 @@ export const AdminWorkspace: React.FC = () => {
                             extra_runs: 1
                           });
                         }}
-                        className="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 font-extrabold text-sm text-white transition active:scale-95"
+                        className="py-4 rounded-2xl bg-amber-600 hover:bg-amber-500 font-extrabold text-sm text-[var(--text-main)] transition active:scale-95"
                       >
                         NO BALL
                       </button>
@@ -918,7 +922,7 @@ export const AdminWorkspace: React.FC = () => {
                       {/* Undo Delivery */}
                       <button
                         onClick={() => undoLastDelivery(selectedMatch.id)}
-                        className="col-span-2 sm:col-span-1 py-4 rounded-2xl bg-[#27272a] hover:bg-[#3f3f46] text-xs font-bold text-white transition active:scale-95"
+                        className="col-span-2 sm:col-span-1 py-4 rounded-2xl bg-[#27272a] hover:bg-[#3f3f46] text-xs font-bold text-[var(--text-main)] transition active:scale-95"
                       >
                         UNDO
                       </button>
@@ -926,8 +930,8 @@ export const AdminWorkspace: React.FC = () => {
                   </div>
 
                   {/* Status switches */}
-                  <div className="pt-4 border-t border-[#27272a] flex items-center gap-3">
-                    <span className="text-xs text-[#A1A1AA]">Set Status:</span>
+                  <div className="pt-4 border-t border-[var(--border-color)] flex items-center gap-3">
+                    <span className="text-xs text-[var(--text-muted)]">Set Status:</span>
                     <button
                       onClick={() => updateMatchStatus(selectedMatch.id, 'Live')}
                       className="px-3 py-1.5 rounded-lg bg-red-600/20 text-red-400 font-bold text-xs"
@@ -955,28 +959,28 @@ export const AdminWorkspace: React.FC = () => {
         {activeTab === 'finances' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl">
-                <span className="text-xs text-[#A1A1AA] uppercase font-bold">Total Inflow</span>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl">
+                <span className="text-xs text-[var(--text-muted)] uppercase font-bold">Total Inflow</span>
                 <p className="text-2xl font-mono font-black text-emerald-400 mt-1">₹{totalIncome.toLocaleString()}</p>
               </div>
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl">
-                <span className="text-xs text-[#A1A1AA] uppercase font-bold">Total Expenditure</span>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl">
+                <span className="text-xs text-[var(--text-muted)] uppercase font-bold">Total Expenditure</span>
                 <p className="text-2xl font-mono font-black text-rose-400 mt-1">₹{totalExpense.toLocaleString()}</p>
               </div>
-              <div className="bg-[#121212] border border-[#27272a] p-5 rounded-2xl">
-                <span className="text-xs text-[#A1A1AA] uppercase font-bold">Net Committee Balance</span>
-                <p className="text-2xl font-mono font-black text-white mt-1">₹{netBalance.toLocaleString()}</p>
+              <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-5 rounded-2xl">
+                <span className="text-xs text-[var(--text-muted)] uppercase font-bold">Net Committee Balance</span>
+                <p className="text-2xl font-mono font-black text-[var(--text-main)] mt-1">₹{netBalance.toLocaleString()}</p>
               </div>
             </div>
 
             {/* Add transaction form */}
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 space-y-4">
-              <h3 className="text-lg font-black text-white">Record Transaction</h3>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 space-y-4">
+              <h3 className="text-lg font-black text-[var(--text-main)]">Record Transaction</h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <select
                   value={finType}
                   onChange={(e) => setFinType(e.target.value as any)}
-                  className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs font-bold text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-main)] outline-none"
                 >
                   <option value="Expense">Expense</option>
                   <option value="Income">Income / Sponsorship</option>
@@ -987,7 +991,7 @@ export const AdminWorkspace: React.FC = () => {
                   placeholder="Title (e.g. Tennis balls box)"
                   value={finTitle}
                   onChange={(e) => setFinTitle(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 />
 
                 <input
@@ -995,7 +999,7 @@ export const AdminWorkspace: React.FC = () => {
                   placeholder="Amount (₹)"
                   value={finAmount}
                   onChange={(e) => setFinAmount(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 />
               </div>
 
@@ -1003,7 +1007,7 @@ export const AdminWorkspace: React.FC = () => {
                 <select
                   value={finCategory}
                   onChange={(e) => setFinCategory(e.target.value as any)}
-                  className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 >
                   <option value="Equipment">Equipment</option>
                   <option value="Ground and venue">Ground and venue</option>
@@ -1021,7 +1025,7 @@ export const AdminWorkspace: React.FC = () => {
                   placeholder="Paid By / Disbursed By"
                   value={finPaidBy}
                   onChange={(e) => setFinPaidBy(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 />
 
                 <button
@@ -1040,7 +1044,7 @@ export const AdminWorkspace: React.FC = () => {
                     setFinTitle('');
                     setFinAmount('');
                   }}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#E53935] text-white font-bold text-xs"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#E53935] text-[var(--text-main)] font-bold text-xs"
                 >
                   Save Entry
                 </button>
@@ -1051,8 +1055,8 @@ export const AdminWorkspace: React.FC = () => {
                 {finances.map(f => (
                   <div key={f.id} className="py-3 flex items-center justify-between text-xs">
                     <div>
-                      <p className="font-bold text-white text-sm">{f.title}</p>
-                      <p className="text-[#A1A1AA]">{f.category} • Paid by {f.paid_by} via {f.payment_method}</p>
+                      <p className="font-bold text-[var(--text-main)] text-sm">{f.title}</p>
+                      <p className="text-[var(--text-muted)]">{f.category} • Paid by {f.paid_by} via {f.payment_method}</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className={`font-mono font-black text-sm ${f.type === 'Income' ? 'text-emerald-400' : 'text-rose-400'}`}>
@@ -1078,8 +1082,8 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'tasks' && (
           <div className="space-y-6">
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 space-y-6">
-              <h3 className="text-lg font-black text-white">Organizing Committee Task Board</h3>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 space-y-6">
+              <h3 className="text-lg font-black text-[var(--text-main)]">Organizing Committee Task Board</h3>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
@@ -1087,12 +1091,12 @@ export const AdminWorkspace: React.FC = () => {
                   placeholder="Task title (e.g. Inspect crease white tape)"
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white outline-none"
+                  className="flex-1 px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 />
                 <select
                   value={taskPriority}
                   onChange={(e) => setTaskPriority(e.target.value as any)}
-                  className="px-3 py-2 rounded-xl bg-[#191919] border border-[#27272a] text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-color)] text-xs text-[var(--text-main)] outline-none"
                 >
                   <option value="Low">Low Priority</option>
                   <option value="Medium">Medium</option>
@@ -1112,7 +1116,7 @@ export const AdminWorkspace: React.FC = () => {
                     });
                     setTaskTitle('');
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#FF5722] text-white font-bold text-xs"
+                  className="px-4 py-2 rounded-xl bg-[#FF5722] text-[var(--text-main)] font-bold text-xs"
                 >
                   Create Task
                 </button>
@@ -1120,7 +1124,7 @@ export const AdminWorkspace: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {tasks.map(t => (
-                  <div key={t.id} className="bg-[#191919] p-4 rounded-2xl border border-[#27272a] space-y-2">
+                  <div key={t.id} className="bg-[var(--bg-elevated)] p-4 rounded-2xl border border-[var(--border-color)] space-y-2">
                     <div className="flex items-center justify-between">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
                         t.priority === 'Urgent' ? 'bg-red-500/20 text-red-400' :
@@ -1132,7 +1136,7 @@ export const AdminWorkspace: React.FC = () => {
                       <select
                         value={t.status}
                         onChange={(e) => updateTaskStatus(t.id, e.target.value as any)}
-                        className="bg-[#121212] border border-[#27272a] rounded px-2 py-0.5 text-[10px] font-bold text-white outline-none"
+                        className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded px-2 py-0.5 text-[10px] font-bold text-[var(--text-main)] outline-none"
                       >
                         <option value="To Do">To Do</option>
                         <option value="In Progress">In Progress</option>
@@ -1140,8 +1144,8 @@ export const AdminWorkspace: React.FC = () => {
                         <option value="Completed">Completed</option>
                       </select>
                     </div>
-                    <p className="font-bold text-white text-xs">{t.title}</p>
-                    <p className="text-[10px] text-[#A1A1AA]">{t.description}</p>
+                    <p className="font-bold text-[var(--text-main)] text-xs">{t.title}</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">{t.description}</p>
                   </div>
                 ))}
               </div>
@@ -1155,14 +1159,14 @@ export const AdminWorkspace: React.FC = () => {
         ========================================================================== */}
         {activeTab === 'settings' && (
           <div className="space-y-6">
-            <div className="bg-[#121212] border border-[#27272a] rounded-3xl p-6 sm:p-8 space-y-6">
-              <h3 className="text-xl font-black text-white">Tournament Rules & Portal Configuration</h3>
+            <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-3xl p-6 sm:p-8 space-y-6">
+              <h3 className="text-xl font-black text-[var(--text-main)]">Tournament Rules & Portal Configuration</h3>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-[#191919] border border-[#27272a]">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-color)]">
                   <div>
-                    <p className="font-bold text-white text-sm">Public Player Registration</p>
-                    <p className="text-xs text-[#A1A1AA]">Accept new resident entries on the public website</p>
+                    <p className="font-bold text-[var(--text-main)] text-sm">Public Player Registration</p>
+                    <p className="text-xs text-[var(--text-muted)]">Accept new resident entries on the public website</p>
                   </div>
                   <input
                     type="checkbox"
@@ -1172,11 +1176,11 @@ export const AdminWorkspace: React.FC = () => {
                   />
                 </div>
 
-                <div className="p-4 rounded-2xl bg-[#191919] border border-[#27272a] space-y-3">
-                  <p className="font-bold text-white text-sm">Box Cricket Ruleset</p>
+                <div className="p-4 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-color)] space-y-3">
+                  <p className="font-bold text-[var(--text-main)] text-sm">Box Cricket Ruleset</p>
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div>
-                      <label className="text-[#A1A1AA] block mb-1">Runs Per Boundary Net</label>
+                      <label className="text-[var(--text-muted)] block mb-1">Runs Per Boundary Net</label>
                       <input
                         type="number"
                         value={settings.box_cricket_rules.runs_per_boundary_net}
@@ -1186,16 +1190,16 @@ export const AdminWorkspace: React.FC = () => {
                             runs_per_boundary_net: Number(e.target.value)
                           }
                         })}
-                        className="w-full px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-white"
+                        className="w-full px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)]"
                       />
                     </div>
                     <div>
-                      <label className="text-[#A1A1AA] block mb-1">Max Overs Per Innings</label>
+                      <label className="text-[var(--text-muted)] block mb-1">Max Overs Per Innings</label>
                       <input
                         type="number"
                         value={settings.max_overs}
                         onChange={(e) => updateSettings({ max_overs: Number(e.target.value) })}
-                        className="w-full px-3 py-2 rounded-xl bg-[#121212] border border-[#27272a] text-white"
+                        className="w-full px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)]"
                       />
                     </div>
                   </div>
