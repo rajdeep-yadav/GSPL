@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Toaster } from 'sonner';
 import { AppProvider } from './context/AppContext';
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
@@ -63,27 +65,39 @@ const AnimatedRoutes: React.FC = () => {
   );
 };
 
+const MainAppLayout: React.FC = () => {
+  const { theme } = useTheme();
+
+  return (
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col selection:bg-[var(--brand-orange)] selection:text-white transition-colors duration-200">
+      <Toaster 
+        theme={theme} 
+        richColors 
+        position="top-right" 
+        toastOptions={{
+          style: {
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-main)'
+          }
+        }}
+      />
+      <AnimatedRoutes />
+    </div>
+  );
+};
+
 export function App() {
   return (
-    <AppProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-[#090909] text-white flex flex-col selection:bg-[#FF5722] selection:text-white">
-          <Toaster 
-            theme="dark" 
-            richColors 
-            position="top-right" 
-            toastOptions={{
-              style: {
-                background: '#191919',
-                border: '1px solid #333333',
-                color: '#ffffff'
-              }
-            }}
-          />
-          <AnimatedRoutes />
-        </div>
-      </BrowserRouter>
-    </AppProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppProvider>
+          <BrowserRouter>
+            <MainAppLayout />
+          </BrowserRouter>
+        </AppProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
