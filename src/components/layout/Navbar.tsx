@@ -7,8 +7,7 @@ import {
   ShieldCheck, 
   Flame, 
   Sun,
-  Moon,
-  ChevronRight
+  Moon
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -20,11 +19,23 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -46,38 +57,34 @@ export const Navbar: React.FC = () => {
     <motion.nav 
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled 
           ? 'bg-[var(--glass-nav)] backdrop-blur-xl border-b border-[var(--border-color)] shadow-xl' 
           : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           
-          {/* Official GSPL Logo Brand */}
-          <Link to="/" className="flex items-center gap-3.5 group">
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 1 }}
-              transition={{ duration: 0.25 }}
-              className="relative w-12 h-12 rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-lg"
-            >
+          {/* Logo & Brand */}
+          <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-2.5 sm:gap-3.5 group">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md shrink-0">
               <img 
                 src="/gspl-logo.jpg" 
                 alt="GSPL Logo" 
                 className="w-full h-full object-cover" 
               />
-            </motion.div>
+            </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-black text-2xl tracking-wider text-[var(--text-main)]">GSPL</span>
-                <span className="bg-gradient-to-r from-[var(--brand-orange)]/15 to-[var(--brand-gold)]/20 border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-sm">
-                  2026
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-black text-xl sm:text-2xl tracking-wider text-[var(--text-main)]">GSPL</span>
+                <span className="bg-gradient-to-r from-[var(--brand-orange)]/15 to-[var(--brand-gold)]/20 border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm">
+                  Season 2
                 </span>
               </div>
-              <p className="text-[10px] tracking-wider text-[var(--text-muted)] uppercase font-semibold group-hover:text-[var(--brand-gold)] transition-colors">
-                Gokul Shrishti Premier League
+              <p className="text-[9px] sm:text-[10px] tracking-wider text-[var(--text-muted)] uppercase font-semibold">
+                Gokul Shrishti
               </p>
             </div>
           </Link>
@@ -90,7 +97,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className="relative px-3.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors"
+                  className="relative px-3 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors"
                 >
                   {active && (
                     <motion.div
@@ -107,101 +114,107 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          {/* Action Area: Theme Toggle & Join League & Admin */}
-          <div className="hidden md:flex items-center gap-3">
-            {/* Theme Toggle Button */}
+          {/* Desktop Action Buttons */}
+          <div className="hidden md:flex items-center gap-2.5">
             <button
               onClick={toggleTheme}
               aria-label="Toggle Theme"
               className="p-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] hover:border-[var(--brand-gold)] transition-colors shadow-sm"
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600" />
-              )}
-            </button>
-
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link
-                to="/register"
-                className="luxury-btn-primary text-xs uppercase tracking-wider !py-2.5 !px-5"
-              >
-                <Flame className="w-4 h-4 fill-white" />
-                <span>Register</span>
-              </Link>
-            </motion.div>
-
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link
-                to="/admin"
-                className="luxury-btn-secondary text-xs font-semibold !py-2.5 !px-4"
-              >
-                <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)]" />
-                <span>Admin</span>
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Mobile hamburger & theme controls */}
-          <div className="flex lg:hidden items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle Theme"
-              className="p-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] shadow-sm"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
             </button>
+
+            <Link
+              to="/register"
+              className="luxury-btn-primary text-xs uppercase tracking-wider !py-2.5 !px-4"
+            >
+              <Flame className="w-4 h-4 fill-white" />
+              <span>Register</span>
+            </Link>
+
             <Link
               to="/admin"
-              className="p-2.5 rounded-xl bg-[var(--bg-card)] text-[var(--brand-gold)] border border-[var(--border-color)]"
-              title="Admin Portal"
+              className="luxury-btn-secondary text-xs font-semibold !py-2.5 !px-3.5"
             >
-              <ShieldCheck className="w-5 h-5" />
+              <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)]" />
+              <span>Admin</span>
             </Link>
+          </div>
+
+          {/* Mobile Fast Action Controls (Touch Friendly) */}
+          <div className="flex md:hidden items-center gap-1.5">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle Theme"
+              className="w-9 h-9 flex items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] active:scale-95 transition"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            </button>
+
+            <Link
+              to="/register"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-red)] text-white text-[11px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm active:scale-95 transition"
+            >
+              <Flame className="w-3.5 h-3.5 fill-white" />
+              <span>Join</span>
+            </Link>
+
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2.5 rounded-xl bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-color)]"
+              aria-label="Toggle Navigation Menu"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-color)] active:scale-95 transition"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer */}
+      {/* Fullscreen Mobile Drawer */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-b border-[var(--border-color)] bg-[var(--bg-secondary)] px-5 pt-3 pb-6 space-y-2 shadow-2xl"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-x-0 top-16 bg-[var(--bg-secondary)] border-b border-[var(--border-color)] px-4 pt-3 pb-8 space-y-2 shadow-2xl overflow-y-auto max-h-[calc(100vh-4rem)]"
           >
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-2.5 rounded-xl text-sm font-semibold transition ${
-                  isActive(link.path)
-                    ? 'bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-red)] text-white'
-                    : 'text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-main)]'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <div className="pt-4 border-t border-[var(--border-color)]">
+            <div className="space-y-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-4 py-3 rounded-xl text-sm font-semibold transition active:scale-98 ${
+                    isActive(link.path)
+                      ? 'bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-red)] text-white font-bold'
+                      : 'text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-main)]'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-[var(--border-color)] space-y-2.5">
               <Link
                 to="/register"
                 onClick={() => setIsOpen(false)}
-                className="w-full luxury-btn-primary text-xs uppercase tracking-wider py-3"
+                className="w-full luxury-btn-primary text-xs uppercase tracking-wider py-3.5 flex items-center justify-center gap-2"
               >
                 <Flame className="w-4 h-4 fill-white" />
-                <span>Player Registration</span>
+                <span>Player Registration (No Login)</span>
+              </Link>
+              
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className="w-full luxury-btn-secondary text-xs uppercase tracking-wider py-3 flex items-center justify-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)]" />
+                <span>Committee Admin Dashboard</span>
               </Link>
             </div>
           </motion.div>
