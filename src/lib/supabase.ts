@@ -1,14 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Environment variables configured for Supabase connection
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://sample-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sample-anon-key';
+// Read exclusively from environment variables (.env in dev, project environment variables in production)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const isSupabaseConfigured = Boolean(
-  import.meta.env.VITE_SUPABASE_URL && 
-  import.meta.env.VITE_SUPABASE_ANON_KEY &&
-  !import.meta.env.VITE_SUPABASE_URL.includes('sample-project')
+  supabaseUrl && 
+  supabaseAnonKey &&
+  !supabaseUrl.includes('sample-project')
 );
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+// Fallback dummy client for build-time safety if env vars aren't injected during SSG
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
