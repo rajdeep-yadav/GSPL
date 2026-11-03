@@ -1,12 +1,11 @@
 -- ============================================================================
--- GSPL (Gokul Shrishti Premier League) - Complete Production Schema
--- Designed for Supabase PostgreSQL with Unified Admin Auth, RLS & Realtime
+-- GSPL (Gokul Shrishti Premier League) - Production Schema (Season 2)
+-- Run this in your Supabase SQL Editor (Dashboard -> SQL Editor -> New Query)
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Unified Admin Profiles (Linked to auth.users)
--- All administrators have full, equal permissions (no restricted role silos)
+-- 1. Unified Admin Profiles (Single admin or committee admins)
 CREATE TABLE IF NOT EXISTS public.admin_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -16,14 +15,15 @@ CREATE TABLE IF NOT EXISTS public.admin_profiles (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 2. Tournament Settings & Config (Box cricket rules, NRR rules, points)
+-- 2. Tournament Settings (Season 2 Configuration)
 CREATE TABLE IF NOT EXISTS public.tournament_settings (
     id TEXT PRIMARY KEY DEFAULT 'gspl_active_config',
     tournament_name TEXT NOT NULL DEFAULT 'Gokul Shrishti Premier League',
-    edition TEXT NOT NULL DEFAULT 'Season 2026',
+    edition TEXT NOT NULL DEFAULT 'Season 2',
     tagline TEXT NOT NULL DEFAULT 'ONE SOCIETY. ONE LEAGUE. ONE CHAMPION.',
+    arena_name TEXT NOT NULL DEFAULT 'GOKUL SHRISTI WINGS A, B, C, D, E garden',
     registration_open BOOLEAN NOT NULL DEFAULT TRUE,
-    registration_deadline TIMESTAMPTZ DEFAULT '2026-11-20T23:59:59+05:30',
+    registration_deadline TIMESTAMPTZ DEFAULT '2026-11-30T23:59:59+05:30',
     max_overs INT NOT NULL DEFAULT 6,
     points_win INT NOT NULL DEFAULT 2,
     points_tie INT NOT NULL DEFAULT 1,
@@ -42,9 +42,8 @@ CREATE TABLE IF NOT EXISTS public.tournament_settings (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Insert default settings row if not present
-INSERT INTO public.tournament_settings (id, tournament_name, edition, tagline)
-VALUES ('gspl_active_config', 'Gokul Shrishti Premier League', 'Season 2026', 'ONE SOCIETY. ONE LEAGUE. ONE CHAMPION.')
+INSERT INTO public.tournament_settings (id, tournament_name, edition, tagline, arena_name)
+VALUES ('gspl_active_config', 'Gokul Shrishti Premier League', 'Season 2', 'ONE SOCIETY. ONE LEAGUE. ONE CHAMPION.', 'GOKUL SHRISTI WINGS A, B, C, D, E garden')
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Teams
@@ -53,26 +52,26 @@ CREATE TABLE IF NOT EXISTS public.teams (
     name TEXT NOT NULL UNIQUE,
     short_code TEXT NOT NULL UNIQUE,
     logo_url TEXT,
-    primary_color TEXT NOT NULL DEFAULT '#FF642D',
-    secondary_color TEXT NOT NULL DEFAULT '#111317',
+    primary_color TEXT NOT NULL DEFAULT '#FF5A1F',
+    secondary_color TEXT NOT NULL DEFAULT '#060709',
     captain_id TEXT,
-    vice_captain_id TEXT,
+    captain_name TEXT,
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 4. Player Registrations (Public submissions without login)
+-- 4. Player Registrations (Public submission without login, Wings A-E)
 CREATE TABLE IF NOT EXISTS public.registrations (
     id TEXT PRIMARY KEY, -- e.g. GSPL-2026-001
     full_name TEXT NOT NULL,
     age INT NOT NULL CHECK (age >= 10 AND age <= 80),
     cricket_frequency TEXT NOT NULL CHECK (cricket_frequency IN ('Regularly', 'Occasionally', 'Rarely / First time')),
-    wing TEXT NOT NULL CHECK (wing IN ('A', 'B', 'C', 'Other')),
+    wing TEXT NOT NULL CHECK (wing IN ('A', 'B', 'C', 'D', 'E')),
     flat_number TEXT NOT NULL,
     tshirt_size TEXT NOT NULL CHECK (tshirt_size IN ('XS', 'S', 'M', 'L', 'XL', 'XXL')),
     captaincy_interest BOOLEAN NOT NULL DEFAULT FALSE,
     terms_accepted BOOLEAN NOT NULL DEFAULT TRUE,
-    terms_version TEXT NOT NULL DEFAULT 'v1.0-2026',
+    terms_version TEXT NOT NULL DEFAULT 'v2.0-2026',
     status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Rejected')),
     category TEXT NOT NULL DEFAULT 'Unassigned' CHECK (category IN ('A', 'B', 'C', 'Unassigned')),
     assigned_team_id UUID REFERENCES public.teams(id) ON DELETE SET NULL,
@@ -81,11 +80,6 @@ CREATE TABLE IF NOT EXISTS public.registrations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
--- Add captain reference constraints on teams
-ALTER TABLE public.teams 
-  ADD CONSTRAINT fk_team_captain FOREIGN KEY (captain_id) REFERENCES public.registrations(id) ON DELETE SET NULL,
-  ADD CONSTRAINT fk_team_vice_captain FOREIGN KEY (vice_captain_id) REFERENCES public.registrations(id) ON DELETE SET NULL;
 
 -- 5. Allocation Sessions & History (Audit trail of random allocations)
 CREATE TABLE IF NOT EXISTS public.allocation_sessions (
@@ -116,7 +110,7 @@ CREATE TABLE IF NOT EXISTS public.matches (
     team1_id UUID NOT NULL REFERENCES public.teams(id),
     team2_id UUID NOT NULL REFERENCES public.teams(id),
     date_time TIMESTAMPTZ NOT NULL,
-    venue TEXT NOT NULL DEFAULT 'Gokul Shrishti Central Box Arena',
+    venue TEXT NOT NULL DEFAULT 'GOKUL SHRISTI WINGS A, B, C, D, E garden',
     total_overs INT NOT NULL DEFAULT 6,
     status TEXT NOT NULL DEFAULT 'Upcoming' CHECK (status IN ('Upcoming', 'Live', 'Completed', 'Abandoned')),
     toss_winner UUID REFERENCES public.teams(id),
@@ -126,8 +120,8 @@ CREATE TABLE IF NOT EXISTS public.matches (
     result_description TEXT,
     player_of_match TEXT,
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
-    innings1 JSONB, -- { batting_team_id, runs, wickets, legal_balls, overs_bowled, is_all_out }
-    innings2 JSONB, -- { batting_team_id, runs, wickets, legal_balls, overs_bowled, target, is_all_out }
+    innings1 JSONB,
+    innings2 JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -137,7 +131,7 @@ CREATE TABLE IF NOT EXISTS public.match_deliveries (
     match_id UUID NOT NULL REFERENCES public.matches(id) ON DELETE CASCADE,
     innings_number INT NOT NULL CHECK (innings_number IN (1, 2)),
     over_number INT NOT NULL,
-    ball_number INT NOT NULL, -- Legal ball sequence within the over (1-6)
+    ball_number INT NOT NULL,
     bowler_name TEXT NOT NULL,
     batsman_name TEXT NOT NULL,
     non_striker_name TEXT NOT NULL,
@@ -151,7 +145,7 @@ CREATE TABLE IF NOT EXISTS public.match_deliveries (
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 8. Finances (Income & Expenses)
+-- 8. Committee Finances
 CREATE TABLE IF NOT EXISTS public.finances (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     type TEXT NOT NULL CHECK (type IN ('Income', 'Expense')),
@@ -183,46 +177,6 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 10. Announcements & Sponsors
-CREATE TABLE IF NOT EXISTS public.announcements (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    category TEXT NOT NULL DEFAULT 'General' CHECK (category IN ('General', 'Fixtures', 'Important', 'Results')),
-    is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
-    published_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS public.sponsors (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    category TEXT NOT NULL CHECK (category IN ('Title Sponsor', 'Powered By', 'Associate Sponsor', 'Beverage Partner')),
-    logo_url TEXT NOT NULL,
-    website_url TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- 11. Activity Logs (Audit trail for accountability)
-CREATE TABLE IF NOT EXISTS public.activity_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    admin_email TEXT NOT NULL,
-    admin_name TEXT NOT NULL,
-    action TEXT NOT NULL,
-    module TEXT NOT NULL,
-    details TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- ============================================================================
--- INDEXES FOR MAXIMUM QUERY PERFORMANCE
--- ============================================================================
-CREATE INDEX IF NOT EXISTS idx_reg_status ON public.registrations(status);
-CREATE INDEX IF NOT EXISTS idx_reg_category ON public.registrations(category);
-CREATE INDEX IF NOT EXISTS idx_reg_team ON public.registrations(assigned_team_id);
-CREATE INDEX IF NOT EXISTS idx_matches_status ON public.matches(status);
-CREATE INDEX IF NOT EXISTS idx_deliveries_match ON public.match_deliveries(match_id, innings_number);
-CREATE INDEX IF NOT EXISTS idx_finances_date ON public.finances(date);
-
 -- ============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
@@ -236,91 +190,45 @@ ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.match_deliveries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.finances ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.sponsors ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 
--- Helper function: Is caller an authorized admin?
-CREATE OR REPLACE FUNCTION public.is_authorized_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.admin_profiles 
-    WHERE auth_user_id = auth.uid() AND is_active = TRUE
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Public READ policies for live tournament access
+CREATE POLICY "Public read teams" ON public.teams FOR SELECT USING (true);
+CREATE POLICY "Public read matches" ON public.matches FOR SELECT USING (true);
+CREATE POLICY "Public read deliveries" ON public.match_deliveries FOR SELECT USING (true);
+CREATE POLICY "Public read settings" ON public.tournament_settings FOR SELECT USING (true);
 
--- Public READ policies for public tournament views
-CREATE POLICY "Public can view teams" ON public.teams FOR SELECT USING (true);
-CREATE POLICY "Public can view matches" ON public.matches FOR SELECT USING (true);
-CREATE POLICY "Public can view match deliveries" ON public.match_deliveries FOR SELECT USING (true);
-CREATE POLICY "Public can view settings" ON public.tournament_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view announcements" ON public.announcements FOR SELECT USING (true);
-CREATE POLICY "Public can view sponsors" ON public.sponsors FOR SELECT USING (true);
+-- Registrations: Anyone can register without logging in
+CREATE POLICY "Public register without login" ON public.registrations FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public status check" ON public.registrations FOR SELECT USING (true);
 
--- Registrations: Public can submit new registration without account
-CREATE POLICY "Public can insert registration" ON public.registrations FOR INSERT WITH CHECK (true);
+-- Authenticated Admin Policies (Full access to all tables)
+CREATE POLICY "Admin full teams" ON public.teams FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full registrations" ON public.registrations FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full matches" ON public.matches FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full deliveries" ON public.match_deliveries FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full finances" ON public.finances FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full tasks" ON public.tasks FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full settings" ON public.tournament_settings FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full allocations" ON public.allocation_sessions FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full allocation_history" ON public.allocation_history FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full profiles" ON public.admin_profiles FOR ALL TO authenticated USING (true);
 
--- Public can verify their registration status by Registration ID only (prevents scraping private society details)
-CREATE POLICY "Public can view registration by id" ON public.registrations FOR SELECT USING (
-  -- Admin sees everything, public can select for status page
-  public.is_authorized_admin() OR true
-);
-
--- Admin FULL ACCESS policies (Insert, Update, Delete for all tables)
-CREATE POLICY "Admins full access on teams" ON public.teams FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on registrations" ON public.registrations FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on matches" ON public.matches FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on match deliveries" ON public.match_deliveries FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on finances" ON public.finances FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on tasks" ON public.tasks FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on announcements" ON public.announcements FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on sponsors" ON public.sponsors FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on settings" ON public.tournament_settings FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on allocation_sessions" ON public.allocation_sessions FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on allocation_history" ON public.allocation_history FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins full access on activity_logs" ON public.activity_logs FOR ALL USING (public.is_authorized_admin());
-CREATE POLICY "Admins can view admin_profiles" ON public.admin_profiles FOR SELECT USING (public.is_authorized_admin() OR auth.uid() = auth_user_id);
-CREATE POLICY "Admins can manage admin_profiles" ON public.admin_profiles FOR ALL USING (public.is_authorized_admin());
+-- If you also want anonymous dev access to manage during setup:
+CREATE POLICY "Anon dev update registrations" ON public.registrations FOR UPDATE USING (true);
+CREATE POLICY "Anon dev delete registrations" ON public.registrations FOR DELETE USING (true);
+CREATE POLICY "Anon dev full teams" ON public.teams FOR ALL USING (true);
+CREATE POLICY "Anon dev full matches" ON public.matches FOR ALL USING (true);
+CREATE POLICY "Anon dev full deliveries" ON public.match_deliveries FOR ALL USING (true);
+CREATE POLICY "Anon dev full finances" ON public.finances FOR ALL USING (true);
+CREATE POLICY "Anon dev full tasks" ON public.tasks FOR ALL USING (true);
+CREATE POLICY "Anon dev full settings" ON public.tournament_settings FOR ALL USING (true);
 
 -- ============================================================================
--- SUPABASE REALTIME REPLICATION CONFIGURATION
+-- REALTIME SUBSCRIPTIONS
 -- ============================================================================
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'matches'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.matches;
-  END IF;
-  
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'match_deliveries'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.match_deliveries;
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'registrations'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.registrations;
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'tasks'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.tasks;
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' AND tablename = 'finances'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE public.finances;
-  END IF;
-END $$;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.registrations;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.teams;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.matches;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.match_deliveries;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.finances;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.tasks;
